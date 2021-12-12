@@ -6,8 +6,16 @@ import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import * as S from "./style";
 
-const UserList = ({ users, isLoading }) => {
+const UserList = ({
+  users,
+  isLoading,
+  fetchUsers,
+  addFavoriteUser,
+  removeFavoriteUser,
+}) => {
   const [hoveredUserId, setHoveredUserId] = useState();
+  const [filters, setFilters] = useState([]);
+  const [favoritesUsers, setFavoritesUsers] = useState([]);
 
   const handleMouseEnter = (index) => {
     setHoveredUserId(index);
@@ -17,15 +25,61 @@ const UserList = ({ users, isLoading }) => {
     setHoveredUserId();
   };
 
+  const heartIconClicked = (user, index) => {
+    console.log("heartIconClicked called with index " + index);
+    const favoritesUserIndex = favoritesUsers.indexOf(index);
+    let newFavoritesUsers = [...favoritesUsers];
+    if (favoritesUserIndex === -1) {
+      newFavoritesUsers.push(index);
+      addFavoriteUser(user);
+    } else {
+      newFavoritesUsers.splice(favoritesUserIndex, 1);
+      removeFavoriteUser(user);
+    }
+    setFavoritesUsers(newFavoritesUsers);
+  };
+
+  // const filterUsers = (filters) => {
+  //   console.log("filterUsers called");
+  //   console.log("current filters is: ", filters);
+  //   if (filters === [] || filters === null || filters.length === 0) {
+  //     setFilteredUsers(users);
+  //   } else {
+  //     let newUsers = users.filter((user) => filters.includes(user?.location.country));
+  //     console.log(newUsers);
+  //     setFilteredUsers(newUsers);
+  //   }
+  // };
+
+  const handleFilterChange = (filter) => {
+    console.log("handleFilterChange called with arguments: ", filter);
+    // console.log("before the change current filters is: ", filters);
+    const filterIndex = filters.indexOf(filter);
+    let newFilters = [...filters];
+    if (filterIndex === -1) {
+      newFilters.push(filter);
+    } else {
+      newFilters.splice(filterIndex, 1);
+    }
+    setFilters(newFilters);
+    // filterUsers(newFilters);
+    fetchUsers(newFilters);
+  };
   return (
     <S.UserList>
       <S.Filters>
-        <CheckBox value="BR" label="Brazil" />
-        <CheckBox value="AU" label="Australia" />
-        <CheckBox value="CA" label="Canada" />
-        <CheckBox value="DE" label="Germany" />
+        <CheckBox value="BR" label="Brazil" onChange={() => handleFilterChange("BR")} />
+        <CheckBox
+          value="AU"
+          label="Australia"
+          onChange={() => handleFilterChange("AU")}
+        />
+        <CheckBox value="CA" label="Canada" onChange={() => handleFilterChange("CA")} />
+        <CheckBox value="DE" label="Germany" onChange={() => handleFilterChange("DE")} />
+        <CheckBox value="DK" label="Denmark" onChange={() => handleFilterChange("DK")} />
       </S.Filters>
       <S.List>
+        {/* {console.log(filteredUsers)} */}
         {users.map((user, index) => {
           return (
             <S.User
@@ -46,8 +100,12 @@ const UserList = ({ users, isLoading }) => {
                   {user?.location.city} {user?.location.country}
                 </Text>
               </S.UserInfo>
-              <S.IconButtonWrapper isVisible={index === hoveredUserId}>
-                <IconButton>
+              <S.IconButtonWrapper
+                isVisible={
+                  index === hoveredUserId || favoritesUsers.includes(index) === true
+                }
+              >
+                <IconButton onClick={() => heartIconClicked(user, index)}>
                   <FavoriteIcon color="error" />
                 </IconButton>
               </S.IconButtonWrapper>

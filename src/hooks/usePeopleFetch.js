@@ -6,13 +6,25 @@ export const usePeopleFetch = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(null);
   }, []);
 
-  async function fetchUsers() {
+  async function fetchUsers(filters) {
+    console.log("fetchUsers called with filters:", filters);
+    if (filters !== null) {
+      filters = filters.join(",");
+      console.log(filters);
+    }
     setIsLoading(true);
-    const response = await axios.get(`https://randomuser.me/api/?results=25&page=1`);
+    const response = await axios.get(`https://randomuser.me/api`, {
+      params: {
+        results: 25,
+        page: 1,
+        nat: filters,
+      },
+    });
     setIsLoading(false);
+    // console.log(response.data);
     setUsers(response.data.results);
   }
 

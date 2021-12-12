@@ -1,1 +1,4 @@
-export { default as Home } from "./Home";
+import Home from "./Home";
+import Favorites from "./Favorites";
+
+export { Home, Favorites };
