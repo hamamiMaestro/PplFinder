@@ -25,7 +25,9 @@ export const usePeopleFetch = () => {
     });
     setIsLoading(false);
     // console.log(response.data);
-    setUsers(response.data.results);
+    let newUsers = [...users, response.data.results];
+    setUsers(newUsers);
+    // setUsers(users.response.data.results);
   }
 
   return { users, isLoading, fetchUsers };

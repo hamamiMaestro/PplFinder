@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Text from "components/Text";
 import Spinner from "components/Spinner";
 import CheckBox from "components/CheckBox";
@@ -25,6 +25,21 @@ const UserList = ({
     setHoveredUserId();
   };
 
+  const observer = useRef();
+  const lastUserRef = useCallback(
+    (node) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          console.log("Visible");
+          fetchUsers(filters);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isLoading]
+  );
   const heartIconClicked = (user, index) => {
     console.log("heartIconClicked called with index " + index);
     const favoritesUserIndex = favoritesUsers.indexOf(index);
@@ -86,6 +101,7 @@ const UserList = ({
               key={index}
               onMouseEnter={() => handleMouseEnter(index)}
               onMouseLeave={handleMouseLeave}
+              ref={users.length === index + 1 ? lastUserRef : null}
             >
               <S.UserPicture src={user?.picture.large} alt="" />
               <S.UserInfo>
